@@ -35,7 +35,7 @@
   .meta-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
   .field { display: flex; flex-direction: column; gap: 5px; }
   .field label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--secondary); }
-  .field input, .field select { border: 1.5px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 14px; font-family: 'Inter', sans-serif; color: var(--text); background: white; transition: border-color 0.15s, box-shadow 0.15s; }
+  .field input, .field select { border: 1.5px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 14px; font-family: 'Inter', sans-serif; color: var(--text); background: white; transition: border-color 0.15s; }
   .field input:focus, .field select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,174,239,0.12); }
 
   .section-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
@@ -47,7 +47,7 @@
   .metric-field { display: flex; flex-direction: column; gap: 4px; }
   .metric-label { font-size: 11px; font-weight: 600; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.05em; }
   .metric-hint { font-size: 10px; color: var(--muted); }
-  .metric-input { border: 1.5px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 16px; font-family: 'DM Mono', monospace; font-weight: 500; color: var(--text); background: white; transition: border-color 0.15s, box-shadow 0.15s; }
+  .metric-input { border: 1.5px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 16px; font-family: 'DM Mono', monospace; font-weight: 500; color: var(--text); background: white; transition: border-color 0.15s; }
   .metric-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,174,239,0.12); }
   .metric-input::placeholder { color: var(--muted); font-size: 13px; font-family: 'Inter',sans-serif; }
 
@@ -55,7 +55,7 @@
   .section-panel.active { display: block; }
 
   .submit-row { display: flex; align-items: center; justify-content: space-between; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
-  .btn-submit { background: var(--blue); color: white; border: none; padding: 12px 32px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: background 0.2s; }
+  .btn-submit { background: var(--blue); color: white; border: none; padding: 12px 32px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: background 0.2s; display: flex; align-items: center; gap: 8px; }
   .btn-submit:hover:not(:disabled) { background: var(--light-blue); }
   .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
   .submit-note { font-size: 12px; color: var(--muted); }
@@ -67,17 +67,22 @@
   .toast.info { background: var(--blue); }
 
   .recent-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px 28px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
-  .recent-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--secondary); margin-bottom: 14px; }
-  .entry-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .recent-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--secondary); margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
+  .entry-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; gap: 8px; }
   .entry-row:last-child { border-bottom: none; }
-  .badge { padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; }
-  .badge-sales { background:#EFF6FF;color:#0055C8; } .badge-ops { background:#F0FDF4;color:#059669; }
-  .badge-care { background:#FFF7ED;color:#D97706; } .badge-tech { background:#F0F9FF;color:#0284C7; } .badge-eng { background:#FDF4FF;color:#9333EA; }
-  .entry-meta { color:var(--muted);font-size:11px; }
-  .entry-week { font-family:'DM Mono',monospace;font-size:12px;color:var(--secondary); }
+  .badge { padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+  .badge-Sales\ Team { background:#EFF6FF;color:#0055C8; }
+  .badge-Operations { background:#F0FDF4;color:#059669; }
+  .badge-Customer\ Care { background:#FFF7ED;color:#D97706; }
+  .badge-Tech { background:#F0F9FF;color:#0284C7; }
+  .badge-Engineering { background:#FDF4FF;color:#9333EA; }
+  .entry-meta { color:var(--muted);font-size:11px; flex:1; text-align:right; }
+  .entry-week { font-family:'DM Mono',monospace;font-size:11px;color:var(--secondary); white-space:nowrap; }
+  .del-btn { color:var(--muted);font-size:11px;cursor:pointer;background:none;border:none;padding:2px 6px;border-radius:4px;font-family:'Inter',sans-serif; white-space:nowrap; }
+  .del-btn:hover { color:var(--red);background:var(--red-bg); }
 
-  .setup-info { background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:#1E40AF; }
-  .setup-info strong { display:block;margin-bottom:4px; }
+  .spinner { display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
 
   @media (max-width:600px) { .main{padding:16px;} .meta-row,.metrics-grid{grid-template-columns:1fr;} .header{padding:0 16px;} }
 </style>
@@ -98,12 +103,6 @@
 </div>
 
 <div class="main">
-
-  <div class="setup-info">
-    <strong>ℹ️ Data Storage</strong>
-    Entries are saved to <strong>localStorage</strong> in your browser right now (demo mode). Once you wire up the SharePoint List, set <code>CONFIG.useSharePoint = true</code> and add your tenant details — entries will then persist for the whole team.
-  </div>
-
   <div class="form-card">
     <div class="form-header">
       <div class="form-icon" style="background:#EFF6FF;">📅</div>
@@ -126,45 +125,45 @@
 
     <div style="margin-bottom:10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--secondary);">Your Section</div>
     <div class="section-tabs">
-      <div class="tab active" data-section="sales" onclick="switchSection('sales')">💼 Sales</div>
-      <div class="tab" data-section="ops" onclick="switchSection('ops')">⚙️ Operations</div>
-      <div class="tab" data-section="care" onclick="switchSection('care')">📞 Customer Care</div>
-      <div class="tab" data-section="tech" onclick="switchSection('tech')">🔧 Tech</div>
-      <div class="tab" data-section="eng" onclick="switchSection('eng')">🏊 Engineering</div>
+      <div class="tab active" data-section="Sales Team" onclick="switchSection(this)">💼 Sales</div>
+      <div class="tab" data-section="Operations" onclick="switchSection(this)">⚙️ Operations</div>
+      <div class="tab" data-section="Customer Care" onclick="switchSection(this)">📞 Customer Care</div>
+      <div class="tab" data-section="Tech" onclick="switchSection(this)">🔧 Tech</div>
+      <div class="tab" data-section="Engineering" onclick="switchSection(this)">🏊 Engineering</div>
     </div>
 
     <!-- SALES -->
-    <div class="section-panel active" id="panel-sales">
+    <div class="section-panel active" id="panel-Sales Team">
       <div class="metrics-grid">
         <div class="metric-field"><div class="metric-label">Sales ($)</div><div class="metric-hint">Total weekly sales in dollars</div><input class="metric-input" type="number" id="f-Sales" placeholder="2400000" /></div>
         <div class="metric-field"><div class="metric-label">Margin %</div><div class="metric-hint">Gross margin percentage</div><input class="metric-input" type="number" step="0.1" id="f-Margin" placeholder="34.2" /></div>
-        <div class="metric-field"><div class="metric-label">Visits Total</div><div class="metric-hint">All customer visits this week</div><input class="metric-input" type="number" id="f-VisitsTotal" placeholder="128" /></div>
-        <div class="metric-field"><div class="metric-label">Visits Reece</div><div class="metric-hint">Reece visits this week</div><input class="metric-input" type="number" id="f-VisitsReece" placeholder="44" /></div>
-        <div class="metric-field"><div class="metric-label">Visits Poolwerx</div><div class="metric-hint">Poolwerx visits this week</div><input class="metric-input" type="number" id="f-VisitsPoolwerx" placeholder="31" /></div>
+        <div class="metric-field"><div class="metric-label">Visits Total</div><input class="metric-input" type="number" id="f-VisitsTotal" placeholder="128" /></div>
+        <div class="metric-field"><div class="metric-label">Visits Reece</div><input class="metric-input" type="number" id="f-VisitsReece" placeholder="44" /></div>
+        <div class="metric-field"><div class="metric-label">Visits Poolwerx</div><input class="metric-input" type="number" id="f-VisitsPoolwerx" placeholder="31" /></div>
       </div>
     </div>
 
     <!-- OPS -->
-    <div class="section-panel" id="panel-ops">
+    <div class="section-panel" id="panel-Operations">
       <div class="metrics-grid">
-        <div class="metric-field"><div class="metric-label">Credits (volume)</div><div class="metric-hint">Number of credit notes issued</div><input class="metric-input" type="number" id="f-Credits" placeholder="18" /></div>
-        <div class="metric-field"><div class="metric-label">Order Entry → Invoice (days)</div><div class="metric-hint">Avg days from order to invoice</div><input class="metric-input" type="number" step="0.1" id="f-OrderDays" placeholder="1.4" /></div>
-        <div class="metric-field"><div class="metric-label">Backorders / OOS</div><div class="metric-hint">Number of backordered SKUs</div><input class="metric-input" type="number" id="f-Backorders" placeholder="12" /></div>
-        <div class="metric-field"><div class="metric-label">DOH (days on hand)</div><div class="metric-hint">Leave blank if not calculated</div><input class="metric-input" type="number" step="0.1" id="f-DOH" placeholder="optional" /></div>
-        <div class="metric-field"><div class="metric-label">Freight Cost ($)</div><div class="metric-hint">Total freight spend this week</div><input class="metric-input" type="number" id="f-FreightCost" placeholder="14320" /></div>
+        <div class="metric-field"><div class="metric-label">Credits (volume)</div><input class="metric-input" type="number" id="f-Credits" placeholder="18" /></div>
+        <div class="metric-field"><div class="metric-label">Order Entry → Invoice (days)</div><input class="metric-input" type="number" step="0.1" id="f-OrderDays" placeholder="1.4" /></div>
+        <div class="metric-field"><div class="metric-label">Backorders / OOS</div><input class="metric-input" type="number" id="f-Backorders" placeholder="12" /></div>
+        <div class="metric-field"><div class="metric-label">DOH (days on hand)</div><input class="metric-input" type="number" step="0.1" id="f-DOH" placeholder="optional" /></div>
+        <div class="metric-field"><div class="metric-label">Freight Cost ($)</div><input class="metric-input" type="number" id="f-FreightCost" placeholder="14320" /></div>
       </div>
     </div>
 
     <!-- CARE -->
-    <div class="section-panel" id="panel-care">
+    <div class="section-panel" id="panel-Customer Care">
       <div class="metrics-grid">
-        <div class="metric-field"><div class="metric-label">Call Volume</div><div class="metric-hint">Total inbound calls this week</div><input class="metric-input" type="number" id="f-CallVolume" placeholder="312" /></div>
-        <div class="metric-field"><div class="metric-label">Abandoned Call Rate (%)</div><div class="metric-hint">% of calls abandoned</div><input class="metric-input" type="number" step="0.1" id="f-AbandonRate" placeholder="4.8" /></div>
+        <div class="metric-field"><div class="metric-label">Call Volume</div><input class="metric-input" type="number" id="f-CallVolume" placeholder="312" /></div>
+        <div class="metric-field"><div class="metric-label">Abandoned Call Rate (%)</div><input class="metric-input" type="number" step="0.1" id="f-AbandonRate" placeholder="4.8" /></div>
       </div>
     </div>
 
     <!-- TECH -->
-    <div class="section-panel" id="panel-tech">
+    <div class="section-panel" id="panel-Tech">
       <div class="metrics-grid">
         <div class="metric-field"><div class="metric-label">New Tickets</div><input class="metric-input" type="number" id="f-NewTickets" placeholder="29" /></div>
         <div class="metric-field"><div class="metric-label">Closed Tickets</div><input class="metric-input" type="number" id="f-ClosedTickets" placeholder="31" /></div>
@@ -173,7 +172,7 @@
     </div>
 
     <!-- ENG -->
-    <div class="section-panel" id="panel-eng">
+    <div class="section-panel" id="panel-Engineering">
       <div class="metrics-grid">
         <div class="metric-field"><div class="metric-label">Pump Tickets</div><input class="metric-input" type="number" id="f-PumpTickets" placeholder="14" /></div>
         <div class="metric-field"><div class="metric-label">Cleaner Tickets</div><input class="metric-input" type="number" id="f-CleanerTickets" placeholder="8" /></div>
@@ -186,135 +185,154 @@
 
     <div class="submit-row">
       <div class="submit-note" id="submitNote">Fill in your section above, then submit.</div>
-      <button class="btn-submit" id="submitBtn" onclick="submitData()">Submit KPIs ✓</button>
+      <button class="btn-submit" id="submitBtn" onclick="submitData()">
+        <span id="submitBtnText">Submit KPIs ✓</span>
+        <span id="submitSpinner" class="spinner" style="display:none;"></span>
+      </button>
     </div>
   </div>
 
   <!-- RECENT -->
   <div class="recent-card">
-    <div class="recent-title">Recent Submissions</div>
-    <div id="recentEntries"><div style="color:var(--muted);font-size:13px;padding:8px 0;">No submissions yet.</div></div>
+    <div class="recent-title">
+      <span>Recent Submissions</span>
+      <span id="recentStatus" style="font-size:11px;color:var(--muted);font-weight:400;"></span>
+    </div>
+    <div id="recentEntries"><div style="color:var(--muted);font-size:13px;padding:8px 0;">Loading...</div></div>
   </div>
-
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const STORAGE_KEY = 'hayward_kpi_entries';
-const sectionBadge = { Sales: 'badge-sales', Operations: 'badge-ops', 'Customer Care': 'badge-care', Tech: 'badge-tech', Engineering: 'badge-eng' };
-const sectionMap = { sales:'Sales', ops:'Operations', care:'Customer Care', tech:'Tech', eng:'Engineering' };
-let currentSection = 'sales';
+var API = '/api/kpi';
+var currentSection = 'Sales Team';
+
+var fieldMap = {
+  'Sales Team':     ['Sales','Margin','VisitsTotal','VisitsReece','VisitsPoolwerx'],
+  'Operations':     ['Credits','OrderDays','Backorders','DOH','FreightCost'],
+  'Customer Care':  ['CallVolume','AbandonRate'],
+  'Tech':           ['NewTickets','ClosedTickets','WarrantyCost'],
+  'Engineering':    ['PumpTickets','CleanerTickets','FilterTickets','HeatingTickets','SanitisationTickets','OtherTickets']
+};
 
 function getNextFriday() {
-  const d = new Date(); const day = d.getDay();
+  var d = new Date(); var day = d.getDay();
   d.setDate(d.getDate() + (day === 5 ? 0 : day < 5 ? 5 - day : 6));
   return d.toISOString().split('T')[0];
 }
-
 document.getElementById('weekEnding').value = getNextFriday();
 
-function switchSection(s) {
-  currentSection = s;
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.section === s));
-  document.querySelectorAll('.section-panel').forEach(p => p.classList.toggle('active', p.id === `panel-${s}`));
+function switchSection(el) {
+  currentSection = el.dataset.section;
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  el.classList.add('active');
+  document.querySelectorAll('.section-panel').forEach(function(p) { p.classList.remove('active'); });
+  var panel = document.getElementById('panel-' + currentSection);
+  if (panel) panel.classList.add('active');
 }
 
 function getFieldValue(id) {
-  const el = document.getElementById(id);
+  var el = document.getElementById('f-' + id);
   if (!el || el.value === '') return null;
   return parseFloat(el.value);
 }
 
-function submitData() {
-  const weekEnding = document.getElementById('weekEnding').value;
-  const name = document.getElementById('submitterName').value.trim();
+async function submitData() {
+  var weekEnding = document.getElementById('weekEnding').value;
+  var name = document.getElementById('submitterName').value.trim();
   if (!weekEnding) { showToast('Please select a week ending date', 'error'); return; }
   if (!name) { showToast('Please enter your name', 'error'); return; }
 
-  const fieldMap = {
-    sales: ['Sales','Margin','VisitsTotal','VisitsReece','VisitsPoolwerx'],
-    ops: ['Credits','OrderDays','Backorders','DOH','FreightCost'],
-    care: ['CallVolume','AbandonRate'],
-    tech: ['NewTickets','ClosedTickets','WarrantyCost'],
-    eng: ['PumpTickets','CleanerTickets','FilterTickets','HeatingTickets','SanitisationTickets','OtherTickets']
-  };
-
-  const metrics = {};
-  fieldMap[currentSection].forEach(f => {
-    const v = getFieldValue(`f-${f}`);
+  var metrics = {};
+  fieldMap[currentSection].forEach(function(f) {
+    var v = getFieldValue(f);
     if (v !== null) metrics[f] = v;
   });
-
   if (Object.keys(metrics).length === 0) { showToast('Please enter at least one value', 'error'); return; }
 
-  const entry = {
-    id: Date.now(),
-    weekEnding,
-    section: sectionMap[currentSection],
-    submittedBy: name,
-    submittedAt: new Date().toISOString(),
-    metrics
-  };
+  var btn = document.getElementById('submitBtn');
+  var btnText = document.getElementById('submitBtnText');
+  var spinner = document.getElementById('submitSpinner');
+  btn.disabled = true;
+  btnText.textContent = 'Saving...';
+  spinner.style.display = 'inline-block';
 
-  // Save to localStorage
-  const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  existing.unshift(entry);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
-
-  // Also update the shared KPI data store that the dashboard reads
-  updateDashboardStore(weekEnding, metrics);
-
-  showToast(`✓ ${sectionMap[currentSection]} saved for week ending ${weekEnding}`, 'success');
-  clearFields();
-  renderRecent();
-}
-
-function updateDashboardStore(weekEnding, metrics) {
-  const KEY = 'hayward_kpi_weeks';
-  const weeks = JSON.parse(localStorage.getItem(KEY) || '{}');
-  if (!weeks[weekEnding]) weeks[weekEnding] = {};
-  Object.assign(weeks[weekEnding], metrics);
-  localStorage.setItem(KEY, JSON.stringify(weeks));
+  try {
+    var res = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ weekEnding: weekEnding, section: currentSection, submittedBy: name, metrics: metrics })
+    });
+    var data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Save failed');
+    showToast('✓ ' + currentSection + ' saved for week ending ' + weekEnding, 'success');
+    clearFields();
+    loadRecent();
+  } catch(e) {
+    showToast('Error: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btnText.textContent = 'Submit KPIs ✓';
+    spinner.style.display = 'none';
+  }
 }
 
 function clearFields() {
-  document.querySelectorAll('.metric-input').forEach(i => i.value = '');
+  document.querySelectorAll('.metric-input').forEach(function(i) { i.value = ''; });
 }
 
-function renderRecent() {
-  const entries = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]').slice(0, 10);
-  const container = document.getElementById('recentEntries');
-  if (!entries.length) { container.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px 0;">No submissions yet.</div>'; return; }
-  container.innerHTML = entries.map(e => {
-    const dt = new Date(e.submittedAt);
-    const timeStr = dt.toLocaleDateString('en-AU',{day:'numeric',month:'short'}) + ' ' + dt.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
-    const badge = sectionBadge[e.section] || 'badge-sales';
-    return `<div class="entry-row">
-      <span class="badge ${badge}">${e.section}</span>
-      <span class="entry-week">${e.weekEnding}</span>
-      <span class="entry-meta">${e.submittedBy} · ${timeStr}</span>
-      <span style="cursor:pointer;color:var(--muted);font-size:11px;" onclick="deleteEntry(${e.id})">✕ Delete</span>
-    </div>`;
-  }).join('');
+async function deleteEntry(weekEnding, section) {
+  if (!confirm('Delete ' + section + ' entry for ' + weekEnding + '?')) return;
+  try {
+    await fetch(API, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ weekEnding: weekEnding, section: section })
+    });
+    showToast('Entry deleted', 'info');
+    loadRecent();
+  } catch(e) {
+    showToast('Error: ' + e.message, 'error');
+  }
 }
 
-function deleteEntry(id) {
-  if (!confirm('Delete this entry?')) return;
-  const entries = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]').filter(e => e.id !== id);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-  renderRecent();
-  showToast('Entry deleted', 'info');
+async function loadRecent() {
+  var container = document.getElementById('recentEntries');
+  var status = document.getElementById('recentStatus');
+  try {
+    var res = await fetch(API);
+    var data = await res.json();
+    var weeks = (data.weeks || []).slice().reverse().slice(0, 10);
+    if (!weeks.length) { container.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px 0;">No submissions yet.</div>'; return; }
+
+    var html = '';
+    weeks.forEach(function(w) {
+      Object.keys(w.sections || {}).forEach(function(section) {
+        var badgeClass = 'badge-' + section;
+        html += '<div class="entry-row">' +
+          '<span class="badge ' + badgeClass + '">' + section + '</span>' +
+          '<span class="entry-week">' + w.weekEnding + '</span>' +
+          '<span class="entry-meta">' + (w.sections[section] || '') + '</span>' +
+          '<button class="del-btn" onclick="deleteEntry(\'' + w.weekEnding + '\',\'' + section + '\')">✕ Delete</button>' +
+        '</div>';
+      });
+    });
+    container.innerHTML = html;
+    status.textContent = weeks.length + ' week' + (weeks.length !== 1 ? 's' : '') + ' on record';
+  } catch(e) {
+    container.innerHTML = '<div style="color:var(--muted);font-size:13px;">Could not load entries.</div>';
+  }
 }
 
-function showToast(msg, type = 'success') {
-  const t = document.getElementById('toast');
+function showToast(msg, type) {
+  var t = document.getElementById('toast');
   t.textContent = msg;
-  t.className = `toast ${type} show`;
-  setTimeout(() => t.classList.remove('show'), 4000);
+  t.className = 'toast ' + (type||'success') + ' show';
+  setTimeout(function() { t.classList.remove('show'); }, 4000);
 }
 
-renderRecent();
+loadRecent();
 </script>
 </body>
 </html>
