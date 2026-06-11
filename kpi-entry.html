@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hayward KPI — Weekly Data Entry</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+  :root {
+    --blue:#003087;--light-blue:#0055C8;--accent:#00AEEF;
+    --bg:#F0F4F8;--surface:#fff;--border:#E2E8F0;
+    --text:#0F1C2E;--muted:#94A3B8;--secondary:#5A6A82;
+    --green:#10B981;--red:#EF4444;--amber:#F59E0B;
+    --green-bg:#ECFDF5;--red-bg:#FEF2F2;--amber-bg:#FFFBEB;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  .header { background: linear-gradient(135deg, var(--blue) 0%, var(--light-blue) 100%); color: white; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; height: 64px; box-shadow: 0 2px 12px rgba(0,48,135,0.3); }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .logo-mark { width: 34px; height: 34px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .logo-mark svg { width: 21px; height: 21px; }
+  .header-title { font-size: 15px; font-weight: 700; color: white; }
+  .header-sub { font-size: 11px; opacity: 0.65; margin-top: 1px; }
+  .hdr-btn { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 7px 16px; border-radius: 7px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: 'Inter', sans-serif; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+
+  .main { max-width: 700px; margin: 0 auto; padding: 32px 24px 60px; }
+
+  .form-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px 32px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .form-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .form-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .form-title { font-size: 17px; font-weight: 700; }
+  .form-subtitle { font-size: 12px; color: var(--secondary); margin-top: 2px; }
+
+  .meta-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--secondary); }
+  .field input, .field select { border: 1.5px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 14px; font-family: 'Inter', sans-serif; color: var(--text); background: white; transition: border-color 0.15s, box-shadow 0.15s; }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,174,239,0.12); }
+
+  .section-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+  .tab { padding: 8px 16px; border-radius: 20px; border: 1.5px solid var(--border); font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; background: white; color: var(--secondary); }
+  .tab:hover { border-color: var(--accent); color: var(--accent); }
+  .tab.active { background: var(--blue); border-color: var(--blue); color: white; }
+
+  .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .metric-field { display: flex; flex-direction: column; gap: 4px; }
+  .metric-label { font-size: 11px; font-weight: 600; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+  .metric-hint { font-size: 10px; color: var(--muted); }
+  .metric-input { border: 1.5px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 16px; font-family: 'DM Mono', monospace; font-weight: 500; color: var(--text); background: white; transition: border-color 0.15s, box-shadow 0.15s; }
+  .metric-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,174,239,0.12); }
+  .metric-input::placeholder { color: var(--muted); font-size: 13px; font-family: 'Inter',sans-serif; }
+
+  .section-panel { display: none; }
+  .section-panel.active { display: block; }
+
+  .submit-row { display: flex; align-items: center; justify-content: space-between; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+  .btn-submit { background: var(--blue); color: white; border: none; padding: 12px 32px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: background 0.2s; }
+  .btn-submit:hover:not(:disabled) { background: var(--light-blue); }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .submit-note { font-size: 12px; color: var(--muted); }
+
+  .toast { position: fixed; bottom: 28px; right: 28px; color: white; padding: 14px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; box-shadow: 0 8px 24px rgba(0,0,0,0.2); transform: translateY(80px); opacity: 0; transition: all 0.3s; z-index: 1000; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { background: var(--green); }
+  .toast.error { background: var(--red); }
+  .toast.info { background: var(--blue); }
+
+  .recent-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px 28px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+  .recent-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--secondary); margin-bottom: 14px; }
+  .entry-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .entry-row:last-child { border-bottom: none; }
+  .badge { padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .badge-sales { background:#EFF6FF;color:#0055C8; } .badge-ops { background:#F0FDF4;color:#059669; }
+  .badge-care { background:#FFF7ED;color:#D97706; } .badge-tech { background:#F0F9FF;color:#0284C7; } .badge-eng { background:#FDF4FF;color:#9333EA; }
+  .entry-meta { color:var(--muted);font-size:11px; }
+  .entry-week { font-family:'DM Mono',monospace;font-size:12px;color:var(--secondary); }
+
+  .setup-info { background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:#1E40AF; }
+  .setup-info strong { display:block;margin-bottom:4px; }
+
+  @media (max-width:600px) { .main{padding:16px;} .meta-row,.metrics-grid{grid-template-columns:1fr;} .header{padding:0 16px;} }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M3 8C3 8 6 5 12 5C18 5 21 8 21 8" stroke="#003087" stroke-width="2.5" stroke-linecap="round"/><path d="M3 12C3 12 6 9 12 9C18 9 21 12 21 12" stroke="#0055C8" stroke-width="2.5" stroke-linecap="round"/><path d="M3 16C3 16 6 13 12 13C18 13 21 16 21 16" stroke="#00AEEF" stroke-width="2.5" stroke-linecap="round"/></svg>
+    </div>
+    <div>
+      <div class="header-title">Hayward Pool Products Australia</div>
+      <div class="header-sub">Weekly KPI — Data Entry</div>
+    </div>
+  </div>
+  <a href="kpi-dashboard.html" class="hdr-btn">📊 View Dashboard</a>
+</div>
+
+<div class="main">
+
+  <div class="setup-info">
+    <strong>ℹ️ Data Storage</strong>
+    Entries are saved to <strong>localStorage</strong> in your browser right now (demo mode). Once you wire up the SharePoint List, set <code>CONFIG.useSharePoint = true</code> and add your tenant details — entries will then persist for the whole team.
+  </div>
+
+  <div class="form-card">
+    <div class="form-header">
+      <div class="form-icon" style="background:#EFF6FF;">📅</div>
+      <div>
+        <div class="form-title">Submit Weekly KPIs</div>
+        <div class="form-subtitle">Enter your team's numbers for the reporting week</div>
+      </div>
+    </div>
+
+    <div class="meta-row">
+      <div class="field">
+        <label>Week Ending (Friday)</label>
+        <input type="date" id="weekEnding" />
+      </div>
+      <div class="field">
+        <label>Your Name</label>
+        <input type="text" id="submitterName" placeholder="e.g. Sarah Jones" />
+      </div>
+    </div>
+
+    <div style="margin-bottom:10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--secondary);">Your Section</div>
+    <div class="section-tabs">
+      <div class="tab active" data-section="sales" onclick="switchSection('sales')">💼 Sales</div>
+      <div class="tab" data-section="ops" onclick="switchSection('ops')">⚙️ Operations</div>
+      <div class="tab" data-section="care" onclick="switchSection('care')">📞 Customer Care</div>
+      <div class="tab" data-section="tech" onclick="switchSection('tech')">🔧 Tech</div>
+      <div class="tab" data-section="eng" onclick="switchSection('eng')">🏊 Engineering</div>
+    </div>
+
+    <!-- SALES -->
+    <div class="section-panel active" id="panel-sales">
+      <div class="metrics-grid">
+        <div class="metric-field"><div class="metric-label">Sales ($)</div><div class="metric-hint">Total weekly sales in dollars</div><input class="metric-input" type="number" id="f-Sales" placeholder="2400000" /></div>
+        <div class="metric-field"><div class="metric-label">Margin %</div><div class="metric-hint">Gross margin percentage</div><input class="metric-input" type="number" step="0.1" id="f-Margin" placeholder="34.2" /></div>
+        <div class="metric-field"><div class="metric-label">Visits Total</div><div class="metric-hint">All customer visits this week</div><input class="metric-input" type="number" id="f-VisitsTotal" placeholder="128" /></div>
+        <div class="metric-field"><div class="metric-label">Visits Reece</div><div class="metric-hint">Reece visits this week</div><input class="metric-input" type="number" id="f-VisitsReece" placeholder="44" /></div>
+        <div class="metric-field"><div class="metric-label">Visits Poolwerx</div><div class="metric-hint">Poolwerx visits this week</div><input class="metric-input" type="number" id="f-VisitsPoolwerx" placeholder="31" /></div>
+      </div>
+    </div>
+
+    <!-- OPS -->
+    <div class="section-panel" id="panel-ops">
+      <div class="metrics-grid">
+        <div class="metric-field"><div class="metric-label">Credits (volume)</div><div class="metric-hint">Number of credit notes issued</div><input class="metric-input" type="number" id="f-Credits" placeholder="18" /></div>
+        <div class="metric-field"><div class="metric-label">Order Entry → Invoice (days)</div><div class="metric-hint">Avg days from order to invoice</div><input class="metric-input" type="number" step="0.1" id="f-OrderDays" placeholder="1.4" /></div>
+        <div class="metric-field"><div class="metric-label">Backorders / OOS</div><div class="metric-hint">Number of backordered SKUs</div><input class="metric-input" type="number" id="f-Backorders" placeholder="12" /></div>
+        <div class="metric-field"><div class="metric-label">DOH (days on hand)</div><div class="metric-hint">Leave blank if not calculated</div><input class="metric-input" type="number" step="0.1" id="f-DOH" placeholder="optional" /></div>
+        <div class="metric-field"><div class="metric-label">Freight Cost ($)</div><div class="metric-hint">Total freight spend this week</div><input class="metric-input" type="number" id="f-FreightCost" placeholder="14320" /></div>
+      </div>
+    </div>
+
+    <!-- CARE -->
+    <div class="section-panel" id="panel-care">
+      <div class="metrics-grid">
+        <div class="metric-field"><div class="metric-label">Call Volume</div><div class="metric-hint">Total inbound calls this week</div><input class="metric-input" type="number" id="f-CallVolume" placeholder="312" /></div>
+        <div class="metric-field"><div class="metric-label">Abandoned Call Rate (%)</div><div class="metric-hint">% of calls abandoned</div><input class="metric-input" type="number" step="0.1" id="f-AbandonRate" placeholder="4.8" /></div>
+      </div>
+    </div>
+
+    <!-- TECH -->
+    <div class="section-panel" id="panel-tech">
+      <div class="metrics-grid">
+        <div class="metric-field"><div class="metric-label">New Tickets</div><input class="metric-input" type="number" id="f-NewTickets" placeholder="29" /></div>
+        <div class="metric-field"><div class="metric-label">Closed Tickets</div><input class="metric-input" type="number" id="f-ClosedTickets" placeholder="31" /></div>
+        <div class="metric-field"><div class="metric-label">Warranty Cost ($)</div><input class="metric-input" type="number" id="f-WarrantyCost" placeholder="8450" /></div>
+      </div>
+    </div>
+
+    <!-- ENG -->
+    <div class="section-panel" id="panel-eng">
+      <div class="metrics-grid">
+        <div class="metric-field"><div class="metric-label">Pump Tickets</div><input class="metric-input" type="number" id="f-PumpTickets" placeholder="14" /></div>
+        <div class="metric-field"><div class="metric-label">Cleaner Tickets</div><input class="metric-input" type="number" id="f-CleanerTickets" placeholder="8" /></div>
+        <div class="metric-field"><div class="metric-label">Filter Tickets</div><input class="metric-input" type="number" id="f-FilterTickets" placeholder="6" /></div>
+        <div class="metric-field"><div class="metric-label">Heating Tickets</div><input class="metric-input" type="number" id="f-HeatingTickets" placeholder="4" /></div>
+        <div class="metric-field"><div class="metric-label">Sanitisation Tickets</div><input class="metric-input" type="number" id="f-SanitisationTickets" placeholder="9" /></div>
+        <div class="metric-field"><div class="metric-label">Other Tickets</div><input class="metric-input" type="number" id="f-OtherTickets" placeholder="6" /></div>
+      </div>
+    </div>
+
+    <div class="submit-row">
+      <div class="submit-note" id="submitNote">Fill in your section above, then submit.</div>
+      <button class="btn-submit" id="submitBtn" onclick="submitData()">Submit KPIs ✓</button>
+    </div>
+  </div>
+
+  <!-- RECENT -->
+  <div class="recent-card">
+    <div class="recent-title">Recent Submissions</div>
+    <div id="recentEntries"><div style="color:var(--muted);font-size:13px;padding:8px 0;">No submissions yet.</div></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'hayward_kpi_entries';
+const sectionBadge = { Sales: 'badge-sales', Operations: 'badge-ops', 'Customer Care': 'badge-care', Tech: 'badge-tech', Engineering: 'badge-eng' };
+const sectionMap = { sales:'Sales', ops:'Operations', care:'Customer Care', tech:'Tech', eng:'Engineering' };
+let currentSection = 'sales';
+
+function getNextFriday() {
+  const d = new Date(); const day = d.getDay();
+  d.setDate(d.getDate() + (day === 5 ? 0 : day < 5 ? 5 - day : 6));
+  return d.toISOString().split('T')[0];
+}
+
+document.getElementById('weekEnding').value = getNextFriday();
+
+function switchSection(s) {
+  currentSection = s;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.section === s));
+  document.querySelectorAll('.section-panel').forEach(p => p.classList.toggle('active', p.id === `panel-${s}`));
+}
+
+function getFieldValue(id) {
+  const el = document.getElementById(id);
+  if (!el || el.value === '') return null;
+  return parseFloat(el.value);
+}
+
+function submitData() {
+  const weekEnding = document.getElementById('weekEnding').value;
+  const name = document.getElementById('submitterName').value.trim();
+  if (!weekEnding) { showToast('Please select a week ending date', 'error'); return; }
+  if (!name) { showToast('Please enter your name', 'error'); return; }
+
+  const fieldMap = {
+    sales: ['Sales','Margin','VisitsTotal','VisitsReece','VisitsPoolwerx'],
+    ops: ['Credits','OrderDays','Backorders','DOH','FreightCost'],
+    care: ['CallVolume','AbandonRate'],
+    tech: ['NewTickets','ClosedTickets','WarrantyCost'],
+    eng: ['PumpTickets','CleanerTickets','FilterTickets','HeatingTickets','SanitisationTickets','OtherTickets']
+  };
+
+  const metrics = {};
+  fieldMap[currentSection].forEach(f => {
+    const v = getFieldValue(`f-${f}`);
+    if (v !== null) metrics[f] = v;
+  });
+
+  if (Object.keys(metrics).length === 0) { showToast('Please enter at least one value', 'error'); return; }
+
+  const entry = {
+    id: Date.now(),
+    weekEnding,
+    section: sectionMap[currentSection],
+    submittedBy: name,
+    submittedAt: new Date().toISOString(),
+    metrics
+  };
+
+  // Save to localStorage
+  const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  existing.unshift(entry);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
+
+  // Also update the shared KPI data store that the dashboard reads
+  updateDashboardStore(weekEnding, metrics);
+
+  showToast(`✓ ${sectionMap[currentSection]} saved for week ending ${weekEnding}`, 'success');
+  clearFields();
+  renderRecent();
+}
+
+function updateDashboardStore(weekEnding, metrics) {
+  const KEY = 'hayward_kpi_weeks';
+  const weeks = JSON.parse(localStorage.getItem(KEY) || '{}');
+  if (!weeks[weekEnding]) weeks[weekEnding] = {};
+  Object.assign(weeks[weekEnding], metrics);
+  localStorage.setItem(KEY, JSON.stringify(weeks));
+}
+
+function clearFields() {
+  document.querySelectorAll('.metric-input').forEach(i => i.value = '');
+}
+
+function renderRecent() {
+  const entries = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]').slice(0, 10);
+  const container = document.getElementById('recentEntries');
+  if (!entries.length) { container.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px 0;">No submissions yet.</div>'; return; }
+  container.innerHTML = entries.map(e => {
+    const dt = new Date(e.submittedAt);
+    const timeStr = dt.toLocaleDateString('en-AU',{day:'numeric',month:'short'}) + ' ' + dt.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
+    const badge = sectionBadge[e.section] || 'badge-sales';
+    return `<div class="entry-row">
+      <span class="badge ${badge}">${e.section}</span>
+      <span class="entry-week">${e.weekEnding}</span>
+      <span class="entry-meta">${e.submittedBy} · ${timeStr}</span>
+      <span style="cursor:pointer;color:var(--muted);font-size:11px;" onclick="deleteEntry(${e.id})">✕ Delete</span>
+    </div>`;
+  }).join('');
+}
+
+function deleteEntry(id) {
+  if (!confirm('Delete this entry?')) return;
+  const entries = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]').filter(e => e.id !== id);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  renderRecent();
+  showToast('Entry deleted', 'info');
+}
+
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+renderRecent();
+</script>
+</body>
+</html>
