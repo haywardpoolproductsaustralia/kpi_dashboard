@@ -156,6 +156,15 @@
   .footer-logo { font-size: 13px; font-weight: 800; color: var(--blue); letter-spacing: 0.12em; }
   .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; background: var(--green); animation: pulse 2s infinite; }
   @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.6;transform:scale(0.85);} }
+
+  /* NOTES CARDS */
+  .notes-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  .notes-card { background: white; border: 2px solid var(--border); border-radius: 12px; padding: 18px 20px; box-shadow: 0 2px 8px rgba(0,56,255,0.04); }
+  .notes-card-title { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .notes-card-title.actions { color: var(--blue); border-bottom: 2px solid var(--border); padding-bottom: 8px; }
+  .notes-card-title.reqs { color: var(--purple); border-bottom: 2px solid var(--border); padding-bottom: 8px; }
+  .notes-empty { font-size: 12px; color: var(--muted); font-style: italic; font-weight: 500; }
+  .notes-bullet { font-size: 13px; color: var(--text); line-height: 1.7; font-weight: 500; white-space: pre-wrap; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
   @media (max-width: 900px) {
@@ -287,6 +296,26 @@ function renderDashboard() {
 
   function subLabel(txt) { return '<div class="sub-section-label">'+txt+'</div>'; }
 
+  function escape(s){ return s?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'):''; }
+
+  function makeNotes(sectionName) {
+    var weekData = allData[curIdx];
+    var sectionNotes = (weekData && weekData.notes && weekData.notes[sectionName]) || {};
+    var actions = sectionNotes['CurrentActions'] || null;
+    var reqs = sectionNotes['RequirementsFromOthers'] || null;
+    if (!actions && !reqs) return '';
+    var actionsHtml = actions
+      ? '<div class="notes-bullet">'+escape(actions)+'</div>'
+      : '<div class="notes-empty">No actions submitted.</div>';
+    var reqsHtml = reqs
+      ? '<div class="notes-bullet">'+escape(reqs)+'</div>'
+      : '<div class="notes-empty">No requirements submitted.</div>';
+    return '<div class="notes-cards">'+
+      '<div class="notes-card"><div class="notes-card-title actions">⚡ Current Actions</div>'+actionsHtml+'</div>'+
+      '<div class="notes-card"><div class="notes-card-title reqs">🤝 Requirements from Others</div>'+reqsHtml+'</div>'+
+    '</div>';
+  }
+
   var engTotal=(cur.PumpTickets||0)+(cur.CleanerTickets||0)+(cur.FilterTickets||0)+(cur.HeatingTickets||0)+(cur.SanitisationTickets||0)+(cur.OtherTickets||0);
 
   var html='';
@@ -310,6 +339,7 @@ function renderDashboard() {
     makeRow('Visits — Reece','VisitsReece','int',true,'#3A5A9C','Volume')+
     makeRow('Visits — Poolwerx','VisitsPoolwerx','int',true,'#3A5A9C','Volume')+
   '</div>';
+  html+=makeNotes('Sales Team');
 
   // FINANCE
   html+='<div class="section-block"><div class="section-label"><div class="section-icon" style="background:#F5EEFF;">💰</div><div class="section-title">Finance</div><div class="section-divider"></div></div>'+
@@ -317,6 +347,7 @@ function renderDashboard() {
     makeRow('Overdue Accounts Count','OverdueCount','int',false,'#FF9500','Count')+
     makeRow('Days on Hand (DOH)','DOH','days',true,'#00C47A','Days')+
   '</div>';
+  html+=makeNotes('Finance');
 
   // MARKETING
   html+='<div class="section-block"><div class="section-label"><div class="section-icon" style="background:#FFF0F5;">📣</div><div class="section-title">Marketing</div><div class="section-divider"></div></div>'+
@@ -334,6 +365,7 @@ function renderDashboard() {
     makeRow('Events / Trade Shows','Events','int',true,'#8B00FF','Count')+
     makeRow('Leads Generated','EventLeads','int',true,'#8B00FF','Count')+
   '</div>';
+  html+=makeNotes('Marketing');
 
   // OPERATIONS
   html+='<div class="section-block"><div class="section-label"><div class="section-icon" style="background:#E6FFF5;">⚙️</div><div class="section-title">Operations</div><div class="section-divider"></div></div>'+
@@ -350,6 +382,7 @@ function renderDashboard() {
     makeRow('Outage — Sanitisation','OOSSanitisation','int',false,'#0038FF','SKUs',true)+
     makeRow('Outage — Other','OOSOther','int',false,'#6B8BB5','SKUs',true)+
   '</div>';
+  html+=makeNotes('Operations');
 
   // ENGINEERING
   html+='<div class="section-block"><div class="section-label"><div class="section-icon" style="background:#F5EEFF;">🏊</div><div class="section-title">Engineering</div><div class="section-divider"></div></div>'+
@@ -364,6 +397,7 @@ function renderDashboard() {
     makeRow('Sanitisation Tickets','SanitisationTickets','int',false,'#8B00FF','Volume')+
     makeRow('Other Tickets','OtherTickets','int',false,'#6B8BB5','Volume')+
   '</div>';
+  html+=makeNotes('Engineering');
 
   // CUSTOMER CARE
   html+='<div class="section-block"><div class="section-label"><div class="section-icon" style="background:#FFF8ED;">📞</div><div class="section-title">Customer Care</div><div class="section-divider"></div></div>'+
@@ -371,6 +405,7 @@ function renderDashboard() {
     makeRow('Abandoned Call Rate','AbandonRate','%',false,'#FF2D55','%')+
     makeRow('Orders Processed','OrdersProcessed','int',true,'#00C47A','Volume')+
   '</div>';
+  html+=makeNotes('Customer Care');
 
   html+='<div class="footer"><div class="footer-text"><span class="status-dot"></span>LIVE DATA · '+allData.length+' WEEKS ON RECORD · ▲▼ VS PRIOR WEEK</div><div class="footer-logo">HAYWARD · AUS-HPA</div></div>';
 
