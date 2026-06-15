@@ -85,6 +85,14 @@
   .entry-week { font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--secondary);white-space:nowrap;font-weight:700; }
   .spinner { display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite; }
   @keyframes spin { to { transform:rotate(360deg); } }
+
+  .notes-section { margin-top: 24px; padding-top: 24px; border-top: 2px solid var(--border); }
+  .notes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .notes-field { display: flex; flex-direction: column; gap: 6px; }
+  .notes-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--blue); display: flex; align-items: center; gap: 6px; }
+  .notes-hint { font-size: 10px; color: var(--muted); font-weight: 500; }
+  .notes-textarea { border: 2px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 14px; font-family: 'Sora', sans-serif; color: var(--text); background: var(--surface2); transition: all 0.2s; resize: vertical; line-height: 1.8; font-weight: 500; width: 100%; }
+  .notes-textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 4px rgba(0,56,255,0.08); background: white; }
   @media (max-width:600px) { .main{padding:16px;} .meta-row,.metrics-grid{grid-template-columns:1fr;} .header{padding:0 16px;} }
 </style>
 </head>
@@ -218,6 +226,22 @@
       </div>
     </div>
 
+    <!-- NOTES -->
+    <div class="notes-section">
+      <div class="notes-grid">
+        <div class="notes-field">
+          <div class="notes-label">⚡ Current Actions</div>
+          <div class="notes-hint">What is your team working on this week? (one per line)</div>
+          <textarea class="notes-textarea" id="f-CurrentActions" rows="10"></textarea>
+        </div>
+        <div class="notes-field">
+          <div class="notes-label">🤝 Requirements from Others</div>
+          <div class="notes-hint">What do you need from other teams / people? (one per line)</div>
+          <textarea class="notes-textarea" id="f-RequirementsFromOthers" rows="10"></textarea>
+        </div>
+      </div>
+    </div>
+
     <div class="submit-row">
       <div class="submit-note">Fill in your section above, then submit.</div>
       <button class="btn-submit" id="submitBtn" onclick="submitData()">
@@ -247,8 +271,13 @@ var fieldMap={
   'Engineering':   ['WarrantyCost','NewTickets','ClosedTickets','PumpTickets','CleanerTickets','FilterTickets','HeatingTickets','SanitisationTickets','OtherTickets'],
   'Marketing':     ['EmailsSent','EmailOpenRate','EmailClickRate','EmailUnsubs','LinkedInImpressions','LinkedInFollowers','InstagramImpressions','InstagramFollowers','Events','EventLeads']
 };
+var notesFields = ['CurrentActions','RequirementsFromOthers'];
 
-function getNextFriday(){var d=new Date(),day=d.getDay();d.setDate(d.getDate()+(day===5?0:day<5?5-day:6));return d.toISOString().split('T')[0];}
+function getNextFriday(){
+  var d=new Date(), day=d.getDay();
+  d.setDate(d.getDate()+(day===5?0:day<5?5-day:6));
+  return d.toISOString().split('T')[0];
+}
 document.getElementById('weekEnding').value=getNextFriday();
 
 function switchSection(el){
@@ -260,7 +289,11 @@ function switchSection(el){
   if (panel) panel.classList.add('active');
 }
 
-function getFieldValue(id){var el=document.getElementById('f-'+id);if(!el||el.value==='')return null;return parseFloat(el.value);}
+function getFieldValue(id){
+  var el=document.getElementById('f-'+id);
+  if(!el||el.value==='') return null;
+  return parseFloat(el.value);
+}
 
 async function submitData(){
   var weekEnding=document.getElementById('weekEnding').value;
@@ -269,25 +302,37 @@ async function submitData(){
   if (!name){showToast('Please enter your name','error');return;}
   var metrics={};
   fieldMap[currentSection].forEach(function(f){var v=getFieldValue(f);if(v!==null)metrics[f]=v;});
+  notesFields.forEach(function(f){
+    var el=document.getElementById('f-'+f);
+    if(el&&el.value.trim()) metrics[f]=el.value.trim();
+  });
   if (!Object.keys(metrics).length){showToast('Please enter at least one value','error');return;}
-  var btn=document.getElementById('submitBtn'),btnText=document.getElementById('submitBtnText'),spinner=document.getElementById('submitSpinner');
+  var btn=document.getElementById('submitBtn');
+  var btnText=document.getElementById('submitBtnText');
+  var spinner=document.getElementById('submitSpinner');
   btn.disabled=true; btnText.textContent='SAVING...'; spinner.style.display='inline-block';
   try{
     var res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({weekEnding:weekEnding,section:currentSection,submittedBy:name,metrics:metrics})});
     var data=await res.json();
     if (!res.ok) throw new Error(data.error||'Save failed');
-    showToast('✓ '+currentSection.toUpperCase()+' SAVED FOR '+weekEnding,'success');
+    showToast('Saved: '+currentSection+' for '+weekEnding,'success');
     clearFields(); loadRecent();
   } catch(e){showToast('ERROR: '+e.message,'error');}
-  finally{btn.disabled=false;btnText.textContent='SUBMIT KPIs ✓';spinner.style.display='none';}
+  finally{btn.disabled=false; btnText.textContent='SUBMIT KPIs'; spinner.style.display='none';}
 }
 
-function clearFields(){document.querySelectorAll('.metric-input').forEach(function(i){i.value='';});}
+function clearFields(){
+  document.querySelectorAll('.metric-input').forEach(function(i){i.value='';});
+  document.querySelectorAll('.notes-textarea').forEach(function(i){
+    i.value='\u2022 ';
+  });
+}
 
 async function loadRecent(){
-  var container=document.getElementById('recentEntries'),status=document.getElementById('recentStatus');
+  var container=document.getElementById('recentEntries');
+  var status=document.getElementById('recentStatus');
   try{
-    var res=await fetch(API),data=await res.json();
+    var res=await fetch(API), data=await res.json();
     var weeks=(data.weeks||[]).slice().reverse().slice(0,10);
     if (!weeks.length){container.innerHTML='<div style="color:var(--muted);font-size:13px;padding:8px 0;font-weight:500;">No submissions yet.</div>';return;}
     var colors={
@@ -315,6 +360,38 @@ function showToast(msg,type){
   t.textContent=msg; t.className='toast '+(type||'success')+' show';
   setTimeout(function(){t.classList.remove('show');},4000);
 }
+
+function initBullets(ta){
+  if (!ta) return;
+  ta.value='\u2022 ';
+  ta.addEventListener('keydown',function(e){
+    if (e.key==='Enter'){
+      e.preventDefault();
+      var pos=this.selectionStart;
+      var before=this.value.substring(0,pos);
+      var after=this.value.substring(pos);
+      this.value=before+'\n\u2022 '+after;
+      this.selectionStart=this.selectionEnd=pos+3;
+    }
+    if (e.key==='Backspace'){
+      var pos=this.selectionStart;
+      var before=this.value.substring(0,pos);
+      if (before==='\u2022 '){
+        e.preventDefault();
+      } else if (before.slice(-3)==='\n\u2022 '){
+        e.preventDefault();
+        this.value=this.value.substring(0,pos-3)+this.value.substring(pos);
+        this.selectionStart=this.selectionEnd=pos-3;
+      }
+    }
+  });
+  ta.addEventListener('focus',function(){
+    if (!this.value.trim()) this.value='\u2022 ';
+  });
+}
+
+initBullets(document.getElementById('f-CurrentActions'));
+initBullets(document.getElementById('f-RequirementsFromOthers'));
 loadRecent();
 </script>
 </body>
