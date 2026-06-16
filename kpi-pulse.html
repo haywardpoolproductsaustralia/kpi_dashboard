@@ -210,15 +210,23 @@ function loadWeek(w) {
 
 function parseActions(text) {
   if (!text) return [];
-  return text.split('\n').map(function(l) { return l.replace(/^[\u2022\-\*]\s*/, '').trim(); }).filter(function(l) { return l.length > 0; });
+  var lines = text.split(/\n|\\n/);
+  return lines.map(function(l) {
+    return l.replace(/^•\s*/,'').replace(/^[-*]\s*/,'').replace(/^\[\w\]\s*/,'').trim();
+  }).filter(function(l){ return l.length > 1; });
+}).filter(function(l) { return l.length > 0; });
 }
 
 function parseStatuses(text) {
   if (!text) return {};
   var result = {};
-  text.split('\n').forEach(function(line) {
-    var m = line.match(/^\[([dip])\]\s*(.+)/i);
-    if (m) result[m[2].trim()] = m[1].toLowerCase();
+  var lines = text.split(/\n|\\n/);
+  lines.forEach(function(line) {
+    var m = line.match(/^\[(\w)\]\s*(.+)/);
+    if (m) {
+      var action = m[2].replace(/^•\s*/,'').trim();
+      result[action] = m[1].toLowerCase();
+    }
   });
   return result;
 }
