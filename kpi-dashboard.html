@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hayward KPI &mdash; Weekly Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
   :root {
@@ -142,6 +143,7 @@
 </div>
 
 <script>
+Chart.register(ChartDataLabels);
 Chart.defaults.font.family = 'Sora, sans-serif';
 Chart.defaults.font.size = 10;
 Chart.defaults.color = '#6B8BB5';
@@ -182,7 +184,7 @@ function setRange(n) {
 }
 
 function fmt(v,type) {
-  if (v==null) return '&mdash;';
+  if (v==null) return '—';
   if (type==='$') return '$'+Math.round(v).toLocaleString();
   if (type==='%') return v.toFixed(1)+'%';
   if (type==='days') return v.toFixed(1)+'d';
@@ -190,9 +192,9 @@ function fmt(v,type) {
 }
 
 function trendInfo(c,p,hb) {
-  if (c==null||p==null) return {cls:'trend-neutral',label:'&mdash; NO PRIOR DATA'};
+  if (c==null||p==null) return {cls:'trend-neutral',label:'— NO PRIOR DATA'};
   var diff=c-p;
-  if (Math.abs(diff)<0.001) return {cls:'trend-neutral',label:'&mdash; UNCHANGED'};
+  if (Math.abs(diff)<0.001) return {cls:'trend-neutral',label:'— UNCHANGED'};
   var pct=p!==0?Math.abs((diff/p)*100).toFixed(1):'0';
   var up=diff>0,good=hb?up:!up;
   return {cls:good?'trend-up':'trend-down',label:(up?'&#9650;':'&#9660;')+' '+pct+'% VS LAST WK'};
@@ -231,8 +233,8 @@ function renderDashboard() {
   var selIdxInSlice=histSlice.findIndex(function(w){return w.weekEnding===selectedWeek;});
   function hist(f){return histSlice.map(function(w){return w.metrics[f]!=null?w.metrics[f]:null;});}
 
-  document.getElementById('weekCountLabel').textContent=histSlice.length+' WEEKS &middot; SCROLL CHARTS &larr; FOR OLDER DATA';
-  document.getElementById('dashSubtitle').textContent='WEEK ENDING '+allData[curIdx].weekLabel.toUpperCase()+' &mdash; LIVE KPI REPORT';
+  document.getElementById('weekCountLabel').textContent=histSlice.length+' WEEKS · SCROLL CHARTS ← FOR OLDER DATA';
+  document.getElementById('dashSubtitle').textContent='WEEK ENDING '+allData[curIdx].weekLabel.toUpperCase()+' — LIVE KPI REPORT';
 
   function makeRow(label,field,fmtType,hb,color,cadence,sub) {
     var t=trendInfo(cur[field],prev[field],hb),cid='c_'+field;
@@ -241,7 +243,7 @@ function renderDashboard() {
         '<div class="metric-kpi-label">'+label+'</div>'+
         '<div class="metric-kpi-value" style="color:'+color+'">'+fmt(cur[field],fmtType)+'</div>'+
         '<div class="metric-kpi-trend '+t.cls+'">'+t.label+'</div>'+
-        '<div class="metric-kpi-sub">WEEKLY &middot; '+cadence+'</div>'+
+        '<div class="metric-kpi-sub">WEEKLY · '+cadence+'</div>'+
       '</div>'+
       '<div class="metric-chart-outer" id="outer_'+cid+'"><div class="metric-chart-inner" id="inner_'+cid+'"><canvas id="'+cid+'"></canvas></div></div>'+
     '</div>';
@@ -258,15 +260,15 @@ function renderDashboard() {
     '<div class="summary-item" style="--item-color:#00C47A"><div class="summary-item-value" style="color:#00C47A">'+fmt(cur.Margin,'%')+'</div><div class="summary-item-label">Gross Margin</div></div>'+
     '<div class="summary-item" style="--item-color:#FF9500"><div class="summary-item-value" style="color:#FF9500">'+fmt(cur.BackorderValue,'$')+'</div><div class="summary-item-label">Backorder Value</div></div>'+
     '<div class="summary-item" style="--item-color:#FF2D55"><div class="summary-item-value" style="color:#FF2D55">'+fmt(cur.AbandonRate,'%')+'</div><div class="summary-item-label">Abandoned Calls</div></div>'+
-    '<div class="summary-item" style="--item-color:#8B00FF"><div class="summary-item-value" style="color:#8B00FF">'+(engTotal>0?engTotal:'&mdash;')+'</div><div class="summary-item-label">Eng Tickets</div></div>'+
+    '<div class="summary-item" style="--item-color:#8B00FF"><div class="summary-item-value" style="color:#8B00FF">'+(engTotal>0?engTotal:'—')+'</div><div class="summary-item-label">Eng Tickets</div></div>'+
     '<div class="summary-item" style="--item-color:#FF2D55"><div class="summary-item-value" style="color:#FF2D55">'+fmt(cur.OverdueValue,'$')+'</div><div class="summary-item-label">Overdue Accounts</div></div>'+
   '</div>';
 
   // SALES
   html+='<div class="section-block"><div class="section-label"><div class="section-icon" style="background:#EEF3FF;">&#128188;</div><div class="section-title">Sales Team</div><div class="section-divider"></div></div>'+
     makeRow('Sales','Sales','$',true,'#0038FF','$')+makeRow('Gross Margin','Margin','%',true,'#00C47A','%')+
-    makeRow('Avg Order Value','AvgOrderValue','$',true,'#0038FF','$')+makeRow('Visits &mdash; Total','VisitsTotal','int',true,'#3A5A9C','Volume')+
-    makeRow('Visits &mdash; Reece','VisitsReece','int',true,'#3A5A9C','Volume')+makeRow('Visits &mdash; Poolwerx','VisitsPoolwerx','int',true,'#3A5A9C','Volume')+
+    makeRow('Avg Order Value','AvgOrderValue','$',true,'#0038FF','$')+makeRow('Visits — Total','VisitsTotal','int',true,'#3A5A9C','Volume')+
+    makeRow('Visits — Reece','VisitsReece','int',true,'#3A5A9C','Volume')+makeRow('Visits — Poolwerx','VisitsPoolwerx','int',true,'#3A5A9C','Volume')+
   '</div>';
   html+=makeNotes('Sales Team');
 
@@ -292,13 +294,13 @@ function renderDashboard() {
 
   // OPERATIONS
   html+='<div class="section-block"><div class="section-label"><div class="section-icon" style="background:#E6FFF5;">&#9881;&#65039;</div><div class="section-title">Operations</div><div class="section-divider"></div></div>'+
-    makeRow('Volume of Credits','Credits','int',false,'#FF9500','Volume')+makeRow('Order Entry &rarr; Invoice','OrderDays','days',false,'#00C47A','Days')+
+    makeRow('Volume of Credits','Credits','int',false,'#FF9500','Volume')+makeRow('Order Entry → Invoice','OrderDays','days',false,'#00C47A','Days')+
     makeRow('Freight Cost','FreightCost','$',false,'#FF9500','$')+
     subLabel('STOCK OUTAGES')+
     makeRow('Backorder Value','BackorderValue','$',false,'#FF2D55','$',true)+makeRow('Backorder Age (avg days)','BackorderAge','days',false,'#FF9500','Days',true)+
-    makeRow('Outage &mdash; Pumps','OOSPumps','int',false,'#0038FF','SKUs',true)+makeRow('Outage &mdash; Cleaners','OOSCleaners','int',false,'#0038FF','SKUs',true)+
-    makeRow('Outage &mdash; Filters','OOSFilters','int',false,'#0038FF','SKUs',true)+makeRow('Outage &mdash; Heating','OOSHeating','int',false,'#0038FF','SKUs',true)+
-    makeRow('Outage &mdash; Sanitisation','OOSSanitisation','int',false,'#0038FF','SKUs',true)+makeRow('Outage &mdash; Other','OOSOther','int',false,'#6B8BB5','SKUs',true)+
+    makeRow('Outage — Pumps','OOSPumps','int',false,'#0038FF','SKUs',true)+makeRow('Outage — Cleaners','OOSCleaners','int',false,'#0038FF','SKUs',true)+
+    makeRow('Outage — Filters','OOSFilters','int',false,'#0038FF','SKUs',true)+makeRow('Outage — Heating','OOSHeating','int',false,'#0038FF','SKUs',true)+
+    makeRow('Outage — Sanitisation','OOSSanitisation','int',false,'#0038FF','SKUs',true)+makeRow('Outage — Other','OOSOther','int',false,'#6B8BB5','SKUs',true)+
   '</div>';
   html+=makeNotes('Operations');
 
@@ -320,7 +322,7 @@ function renderDashboard() {
   '</div>';
   html+=makeNotes('Customer Care');
 
-  html+='<div class="footer"><div class="footer-text"><span class="status-dot"></span>LIVE DATA &middot; '+allData.length+' WEEKS ON RECORD &middot; Trend vs prior week</div><div class="footer-logo">HAYWARD &middot; AUS-HPA</div></div>';
+  html+='<div class="footer"><div class="footer-text"><span class="status-dot"></span>LIVE DATA · '+allData.length+' WEEKS ON RECORD · Trend vs prior week</div><div class="footer-logo">HAYWARD · AUS-HPA</div></div>';
 
   document.getElementById('main').innerHTML=html;
 
@@ -366,8 +368,26 @@ function renderDashboard() {
       type:'bar',
       data:{labels:labels,datasets:[{data:data,backgroundColor:bgColors,borderColor:borderColors,borderWidth:2,borderRadius:5,barThickness:BAR}]},
       options:{responsive:false,maintainAspectRatio:false,animation:false,
-        plugins:{legend:{display:false},tooltip:{backgroundColor:'#001F8C',borderColor:'#0038FF',borderWidth:1,titleColor:'#7DDFFF',bodyColor:'white',cornerRadius:8,
-          callbacks:{label:function(ctx){return ' '+fmt(ctx.raw,fmtType);},title:function(ctx){return ctx[0].label;}}}},
+        plugins:{
+          legend:{display:false},
+          tooltip:{backgroundColor:'#001F8C',borderColor:'#0038FF',borderWidth:1,titleColor:'#7DDFFF',bodyColor:'white',cornerRadius:8,
+            callbacks:{label:function(ctx){return ' '+fmt(ctx.raw,fmtType);},title:function(ctx){return ctx[0].label;}}},
+          datalabels:{
+            anchor:'end', align:'end',
+            formatter:function(val){
+              if(val==null) return '';
+              if(fmtType==='$') return '$'+Math.round(val).toLocaleString();
+              if(fmtType==='%') return val.toFixed(1)+'%';
+              if(fmtType==='days') return val.toFixed(1)+'d';
+              return Math.round(val).toLocaleString();
+            },
+            font:{size:9,weight:'700',family:'JetBrains Mono, monospace'},
+            color:function(ctx){ return ctx.dataIndex===selIdxInSlice ? color : color+'99'; },
+            clip:false,
+            padding:{bottom:0}
+          }
+        },
+        layout:{padding:{top:18}},
         scales:{x:{grid:{display:false},ticks:{font:{size:9,weight:'700'},maxRotation:45,color:'#6B8BB5'}},
           y:{grid:{color:'rgba(0,56,255,0.06)',drawBorder:false},ticks:{font:{size:9,weight:'600'},maxTicksLimit:4,color:'#6B8BB5'},beginAtZero:false}}}
     });
