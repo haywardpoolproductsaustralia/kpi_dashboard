@@ -229,7 +229,7 @@
       <div class="notes-grid">
         <div class="notes-field">
           <div class="notes-label">&#9889; Current Actions</div>
-          <div class="notes-hint">This week's actions &mdash; one per line. Bullets added automatically.</div>
+          <div class="notes-hint">This week's actions &mdash; one per line.</div>
           <textarea class="notes-textarea" id="f-CurrentActions" rows="10"></textarea>
         </div>
         <div class="notes-field">
@@ -377,8 +377,8 @@ function prefillForm(){
         var notes=sdata.notes||{};
         var actEl=document.getElementById('f-CurrentActions');
         var reqEl=document.getElementById('f-RequirementsFromOthers');
-        if(actEl) actEl.value=notes.CurrentActions||'\u2022 ';
-        if(reqEl) reqEl.value=notes.RequirementsFromOthers||'\u2022 ';
+        if(actEl) actEl.value=notes.CurrentActions||'';
+        if(reqEl) reqEl.value=notes.RequirementsFromOthers||'';
         if(notes.CurrentActions) showToast('Previous entry loaded \u2014 edit and resubmit to update','info');
 
         var prevNotes=(prevWeek&&prevWeek.notes&&prevWeek.notes[currentSection])||{};
@@ -396,7 +396,7 @@ async function submitData(){
   fieldMap[currentSection].forEach(function(f){var v=getFieldValue(f);if(v!==null)metrics[f]=v;});
   notesFields.forEach(function(f){
     var el=document.getElementById('f-'+f);
-    if(el&&el.value.trim()&&el.value.trim()!=='\u2022') metrics[f]=el.value.trim();
+    if(el&&el.value.trim()) metrics[f]=el.value.trim();
   });
   if(!Object.keys(metrics).length){showToast('Please enter at least one value','error');return;}
   var btn=document.getElementById('submitBtn');
@@ -417,8 +417,8 @@ function clearFields(){
   document.querySelectorAll('.metric-input').forEach(function(i){i.value='';});
   var actEl=document.getElementById('f-CurrentActions');
   var reqEl=document.getElementById('f-RequirementsFromOthers');
-  if(actEl) actEl.value='\u2022 ';
-  if(reqEl) reqEl.value='\u2022 ';
+  if(actEl) actEl.value='';
+  if(reqEl) reqEl.value='';
   buildStatusTracker([]);
 }
 
@@ -456,37 +456,11 @@ function showToast(msg,type){
   setTimeout(function(){t.classList.remove('show');},4000);
 }
 
-function initBullets(ta){
-  if(!ta) return;
-  ta.value='\u2022 ';
-  ta.addEventListener('keydown',function(e){
-    if(e.key==='Enter'){
-      e.preventDefault();
-      var pos=this.selectionStart;
-      var before=this.value.substring(0,pos);
-      var after=this.value.substring(pos);
-      this.value=before+'\n\u2022 '+after;
-      this.selectionStart=this.selectionEnd=pos+3;
-    }
-    if(e.key==='Backspace'){
-      var pos=this.selectionStart;
-      var before=this.value.substring(0,pos);
-      if(before==='\u2022 '){
-        e.preventDefault();
-      }else if(before.slice(-3)==='\n\u2022 '){
-        e.preventDefault();
-        this.value=this.value.substring(0,pos-3)+this.value.substring(pos);
-        this.selectionStart=this.selectionEnd=pos-3;
-      }
-    }
-  });
-  ta.addEventListener('focus',function(){
-    if(!this.value.trim()) this.value='\u2022 ';
-  });
-}
-
-initBullets(document.getElementById('f-CurrentActions'));
-initBullets(document.getElementById('f-RequirementsFromOthers'));
+// Plain text areas - no bullets
+var actEl = document.getElementById('f-CurrentActions');
+var reqEl = document.getElementById('f-RequirementsFromOthers');
+if(actEl) actEl.placeholder = 'Weekly KPI reports\nAzure cloud upgrades\nPricelist updates';
+if(reqEl) reqEl.placeholder = 'Azure upgrades - Patrick\nWMS decision - Simon';
 loadRecent();
 </script>
 </body>
