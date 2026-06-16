@@ -212,17 +212,30 @@ function loadWeek(w) {
 
 function parseActions(text) {
   if (!text) return [];
-  return text.split('\n')
-    .map(function(l) { return l.replace(/^[\u2022\-\*\[\w\]]\s*/,'').replace(/^\[\w\]\s*/,'').trim(); })
+  // Handle both real newlines and escaped \n stored in Redis
+  var lines = text.replace(/\\n/g, '\n').split('\n');
+  return lines
+    .map(function(l) {
+      return l
+        .replace(/^\u2022\s*/,'')
+        .replace(/^-\s*/,'')
+        .replace(/^\*\s*/,'')
+        .replace(/^\[\w\]\s*/,'')
+        .trim();
+    })
     .filter(function(l) { return l.length > 1; });
 }
 
 function parseStatuses(text) {
   if (!text) return {};
   var result = {};
-  text.split('\n').forEach(function(line) {
+  var lines = text.replace(/\\n/g, '\n').split('\n');
+  lines.forEach(function(line) {
     var m = line.match(/^\[(d|i|p)\]\s*(.+)/i);
-    if (m) result[m[2].trim()] = m[1].toLowerCase();
+    if (m) {
+      var action = m[2].replace(/^\u2022\s*/,'').trim();
+      result[action] = m[1].toLowerCase();
+    }
   });
   return result;
 }
