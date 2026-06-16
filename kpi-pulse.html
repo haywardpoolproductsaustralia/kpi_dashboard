@@ -178,17 +178,19 @@ var SECTIONS = [
 
 async function loadData() {
   try {
-    var res = await fetch(API), json = await res.json();
+    var res = await fetch(API);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var json = await res.json();
     allData = json.weeks || [];
     if (!allData.length) {
-      document.getElementById('content').innerHTML = '<div class="empty-state"><div style="font-size:56px;margin-bottom:16px;">&#128203;</div><h2>No data yet</h2><p>Teams need to submit their weekly actions first.</p><a href="kpi-entry.html">Enter This Week\'s Data</a></div>';
+      document.getElementById('content').innerHTML = '<div class="empty-state"><h2>No data yet</h2><p>Submit weekly actions first.</p><a href="kpi-entry.html">Enter Data</a></div>';
       return;
     }
     selectedWeek = allData[allData.length - 1].weekEnding;
     buildWeekPicker();
     renderPulse();
   } catch(e) {
-    document.getElementById('content').innerHTML = '<div class="empty-state"><h2>Connection Error</h2><p>' + e.message + '</p></div>';
+    document.getElementById('content').innerHTML = '<div class="empty-state"><h2>Could not load</h2><p>' + e.message + '</p></div>';
   }
 }
 
@@ -210,23 +212,17 @@ function loadWeek(w) {
 
 function parseActions(text) {
   if (!text) return [];
-  var lines = text.split(/\n|\\n/);
-  return lines.map(function(l) {
-    return l.replace(/^•\s*/,'').replace(/^[-*]\s*/,'').replace(/^\[\w\]\s*/,'').trim();
-  }).filter(function(l){ return l.length > 1; });
-}).filter(function(l) { return l.length > 0; });
+  return text.split('\n')
+    .map(function(l) { return l.replace(/^[\u2022\-\*\[\w\]]\s*/,'').replace(/^\[\w\]\s*/,'').trim(); })
+    .filter(function(l) { return l.length > 1; });
 }
 
 function parseStatuses(text) {
   if (!text) return {};
   var result = {};
-  var lines = text.split(/\n|\\n/);
-  lines.forEach(function(line) {
-    var m = line.match(/^\[(\w)\]\s*(.+)/);
-    if (m) {
-      var action = m[2].replace(/^•\s*/,'').trim();
-      result[action] = m[1].toLowerCase();
-    }
+  text.split('\n').forEach(function(line) {
+    var m = line.match(/^\[(d|i|p)\]\s*(.+)/i);
+    if (m) result[m[2].trim()] = m[1].toLowerCase();
   });
   return result;
 }
@@ -238,8 +234,8 @@ function dotClass(status) {
 }
 
 function dotChar(status) {
-  if (status === 'd') return '&#10003;';
-  if (status === 'i') return '&#8987;';
+  if (status === 'd') return '✓';
+  if (status === 'i') return '⧖';
   return '';
 }
 
@@ -289,7 +285,7 @@ function renderPulse() {
     html += '<div class="dept-header">' +
       '<div class="dept-icon" style="background:' + sect.bg + ';">' + sect.icon + '</div>' +
       '<div><div class="dept-name">' + sect.key + '</div>' +
-      '<div class="dept-meta">' + (curSubmitted ? 'Submitted by ' + curSubmitted + ' &middot; ' + curWeek.weekLabel : 'Not submitted this week') + '</div></div>';
+      '<div class="dept-meta">' + (curSubmitted ? 'Submitted by ' + curSubmitted + ' · ' + curWeek.weekLabel : 'Not submitted this week') + '</div></div>';
 
     if (curActions.length > 0) {
       html += '<div class="dept-progress">' +
@@ -304,7 +300,7 @@ function renderPulse() {
 
     // LEFT — last week
     html += '<div class="dept-col">';
-    html += '<div class="col-label"><span class="col-label-dot" style="background:var(--muted);"></span>Last week &mdash; ' + (prevWeek ? prevWeek.weekLabel : 'n/a') + '</div>';
+    html += '<div class="col-label"><span class="col-label-dot" style="background:var(--muted);"></span>Last week — ' + (prevWeek ? prevWeek.weekLabel : 'n/a') + '</div>';
     if (!prevSubmitted) {
       html += '<div class="no-actions">Not submitted last week.</div>';
     } else if (prevActions.length === 0) {
@@ -326,9 +322,9 @@ function renderPulse() {
 
     // RIGHT — this week
     html += '<div class="dept-col">';
-    html += '<div class="col-label"><span class="col-label-dot" style="background:var(--blue);"></span>This week &mdash; ' + curWeek.weekLabel + '</div>';
+    html += '<div class="col-label"><span class="col-label-dot" style="background:var(--blue);"></span>This week — ' + curWeek.weekLabel + '</div>';
     if (!curSubmitted) {
-      html += '<div class="not-submitted"><div class="not-submitted-icon">&#128203;</div>Not yet submitted.<br><a href="kpi-entry.html" style="color:var(--blue);font-weight:700;font-size:13px;">Submit now &rarr;</a></div>';
+      html += '<div class="not-submitted"><div class="not-submitted-icon">📋</div>Not yet submitted.<br><a href="kpi-entry.html" style="color:var(--blue);font-weight:700;font-size:13px;">Submit now →</a></div>';
     } else if (curActions.length === 0) {
       html += '<div class="no-actions">No actions recorded.</div>';
     } else {
