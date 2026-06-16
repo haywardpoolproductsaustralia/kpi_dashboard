@@ -281,12 +281,7 @@ function renderDashboard() {
 
   // MARKETING
   html+='<div class="section-block"><div class="section-label"><div class="section-icon" style="background:#FFF0F5;">&#128226;</div><div class="section-title">Marketing</div><div class="section-divider"></div></div>'+
-    subLabel('EMAIL')+
-    makeRow('Emails Sent','EmailsSent','int',true,'#FF2D9B','Volume')+makeRow('Open Rate','EmailOpenRate','%',true,'#FF2D9B','%')+
-    makeRow('Click Rate','EmailClickRate','%',true,'#FF2D9B','%')+makeRow('Unsubscribes','EmailUnsubs','int',false,'#FF2D55','Volume')+
-    subLabel('SOCIAL MEDIA')+
-    makeRow('LinkedIn Impressions','LinkedInImpressions','int',true,'#0077B5','Volume')+makeRow('LinkedIn New Followers','LinkedInFollowers','int',true,'#0077B5','Count')+
-    makeRow('Instagram Impressions','InstagramImpressions','int',true,'#E1306C','Volume')+makeRow('Instagram New Followers','InstagramFollowers','int',true,'#E1306C','Count')+
+    makeRow('Emails Sent','EmailsSent','int',true,'#FF2D9B','Volume')+
     subLabel('EVENTS')+
     makeRow('Events / Trade Shows','Events','int',true,'#8B00FF','Count')+makeRow('Leads Generated','EventLeads','int',true,'#8B00FF','Count')+
   '</div>';
@@ -306,7 +301,7 @@ function renderDashboard() {
 
   // ENGINEERING
   html+='<div class="section-block"><div class="section-label"><div class="section-icon" style="background:#F5EEFF;">&#128704;</div><div class="section-title">Engineering</div><div class="section-divider"></div></div>'+
-    makeRow('Warranty Cost','WarrantyCost','$',false,'#FF2D55','$')+
+    makeRow('Warranty Cost vs Sales','WarrantyCost','$',false,'#FF2D55','$')+
     subLabel('TICKET VOLUMES')+
     makeRow('New Tickets','NewTickets','int',false,'#FF9500','Volume')+makeRow('Closed Tickets','ClosedTickets','int',true,'#00C47A','Volume')+
     makeRow('Pump Tickets','PumpTickets','int',false,'#8B00FF','Volume')+makeRow('Cleaner Tickets','CleanerTickets','int',false,'#8B00FF','Volume')+
@@ -381,13 +376,13 @@ function renderDashboard() {
               if(fmtType==='days') return val.toFixed(1)+'d';
               return Math.round(val).toLocaleString();
             },
-            font:{size:9,weight:'700',family:'JetBrains Mono, monospace'},
+            font:{size:13,weight:'700',family:'JetBrains Mono, monospace'},
             color:function(ctx){ return ctx.dataIndex===selIdxInSlice ? color : color+'99'; },
             clip:false,
             padding:{bottom:0}
           }
         },
-        layout:{padding:{top:18}},
+        layout:{padding:{top:26}},
         scales:{x:{grid:{display:false},ticks:{font:{size:9,weight:'700'},maxRotation:45,color:'#6B8BB5'}},
           y:{grid:{color:'rgba(0,56,255,0.06)',drawBorder:false},ticks:{font:{size:9,weight:'600'},maxTicksLimit:4,color:'#6B8BB5'},beginAtZero:false}}}
     });
