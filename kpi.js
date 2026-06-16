@@ -47,7 +47,14 @@ export default async function handler(req, res) {
         const result = await redis('hget', `kpi:${week}`, section);
         if (!result.result) return res.status(200).json({ metrics: {}, notes: {} });
         const data = JSON.parse(result.result);
-        return res.status(200).json({ metrics: data.metrics || {}, notes: data.notes || {}, submittedBy: data.submittedBy });
+        var notes = data.notes || {};
+        // Ensure newlines in notes are real newlines, not escaped
+        Object.keys(notes).forEach(function(k) {
+          if (typeof notes[k] === 'string') {
+            notes[k] = notes[k].replace(/\\n/g, '\n');
+          }
+        });
+        return res.status(200).json({ metrics: data.metrics || {}, notes: notes, submittedBy: data.submittedBy });
       } catch (e) {
         return res.status(500).json({ error: e.message });
       }
@@ -68,7 +75,13 @@ export default async function handler(req, res) {
           const data = JSON.parse(hash[i + 1]);
           sections[sec] = data.submittedBy;
           Object.assign(mergedMetrics, data.metrics || {});
-          if (data.notes && Object.keys(data.notes).length > 0) sectionNotes[sec] = data.notes;
+          if (data.notes && Object.keys(data.notes).length > 0) {
+            var notes = data.notes;
+            Object.keys(notes).forEach(function(k) {
+              if (typeof notes[k] === 'string') notes[k] = notes[k].replace(/\\n/g, '\n');
+            });
+            sectionNotes[sec] = notes;
+          }
         }
         const d = new Date(weekEnding + 'T00:00:00');
         const label = d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: '2-digit' });
