@@ -93,6 +93,15 @@
   .notes-hint { font-size: 10px; color: var(--muted); font-weight: 500; }
   .notes-textarea { border: 2px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 14px; font-family: 'Sora', sans-serif; color: var(--text); background: var(--surface2); transition: all 0.2s; resize: vertical; line-height: 1.8; font-weight: 500; width: 100%; }
   .notes-textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 4px rgba(0,56,255,0.08); background: white; }
+  .status-list { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .status-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 10px; }
+  .status-text { flex: 1; font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .status-btns { display: flex; gap: 6px; flex-shrink: 0; }
+  .status-btn { padding: 4px 12px; border-radius: 20px; border: 1.5px solid var(--border); font-size: 11px; font-weight: 700; cursor: pointer; background: white; font-family: 'Sora', sans-serif; transition: all 0.15s; letter-spacing: 0.04em; }
+  .status-btn:hover { transform: scale(1.05); }
+  .status-btn.active-done { background: #E6FFF5; border-color: #00C47A; color: #00C47A; }
+  .status-btn.active-progress { background: #FFF8ED; border-color: #FF9500; color: #FF9500; }
+  .status-btn.active-pending { background: #EEF3FF; border-color: var(--blue); color: var(--blue); }
   @media (max-width:600px) { .main{padding:16px;} .meta-row,.metrics-grid{grid-template-columns:1fr;} .header{padding:0 16px;} }
 </style>
 </head>
@@ -219,15 +228,22 @@
     <div class="notes-section">
       <div class="notes-grid">
         <div class="notes-field">
-          <div class="notes-label">⚡ Current Actions</div>
-          <div class="notes-hint">What is your team working on this week? (one per line)</div>
+          <div class="notes-label">&#9889; Current Actions</div>
+          <div class="notes-hint">This week's actions &mdash; one per line. Bullets added automatically.</div>
           <textarea class="notes-textarea" id="f-CurrentActions" rows="10"></textarea>
         </div>
         <div class="notes-field">
-          <div class="notes-label">🤝 Requirements from Others</div>
+          <div class="notes-label">&#129309; Requirements from Others</div>
           <div class="notes-hint">What do you need from other teams / people? (one per line)</div>
           <textarea class="notes-textarea" id="f-RequirementsFromOthers" rows="10"></textarea>
         </div>
+      </div>
+
+      <div id="statusTrackerWrap" style="display:none;margin-top:20px;">
+        <div class="notes-label" style="margin-bottom:8px;">&#127919; Last week's actions &mdash; update progress</div>
+        <div class="notes-hint" style="margin-bottom:12px;">Mark each of last week's actions so the Pulse page can track progress.</div>
+        <div class="status-list" id="statusList"></div>
+        <input type="hidden" id="f-ActionStatuses" />
       </div>
     </div>
 
@@ -252,8 +268,7 @@
 
 <script>
 var API='/api/kpi', currentSection='Sales Team';
-var allWeeksData = []; // cache of all weeks from API
-
+var allWeeksData=[];
 var fieldMap={
   'Sales Team':    ['Sales','Margin','AvgOrderValue','VisitsTotal','VisitsReece','VisitsPoolwerx'],
   'Operations':    ['Credits','OrderDays','FreightCost','BackorderValue','BackorderAge','OOSPumps','OOSCleaners','OOSFilters','OOSHeating','OOSSanitisation','OOSOther'],
@@ -262,57 +277,14 @@ var fieldMap={
   'Engineering':   ['WarrantyCost','NewTickets','ClosedTickets','PumpTickets','CleanerTickets','FilterTickets','HeatingTickets','SanitisationTickets','OtherTickets'],
   'Marketing':     ['EmailsSent','Events','EventLeads']
 };
-var notesFields = ['CurrentActions','RequirementsFromOthers'];
+var notesFields=['CurrentActions','RequirementsFromOthers','ActionStatuses'];
 
 function getNextFriday(){
-  var d=new Date(), day=d.getDay();
+  var d=new Date(),day=d.getDay();
   d.setDate(d.getDate()+(day===5?0:day<5?5-day:6));
   return d.toISOString().split('T')[0];
 }
 document.getElementById('weekEnding').value=getNextFriday();
-
-// Pre-fill form when week or section changes
-function prefillForm(){
-  var weekEnding = document.getElementById('weekEnding').value;
-  if (!weekEnding) return;
-
-  // Find this week in cached data
-  var weekData = allWeeksData.find(function(w){ return w.weekEnding === weekEnding; });
-  if (!weekData) { clearFields(); return; }
-
-  // Find this section's raw data
-  // We need to re-fetch to get per-section metrics (allWeeksData has merged metrics)
-  // So we'll fetch fresh and look for the section
-  fetch(API).then(function(r){ return r.json(); }).then(function(json){
-    var week = (json.weeks||[]).find(function(w){ return w.weekEnding === weekEnding; });
-    if (!week) { clearFields(); return; }
-
-    // Get section-specific metrics from raw notes endpoint
-    // Since our API merges metrics, we stored notes per-section
-    // For metrics we need to re-fetch raw — use a section-specific GET
-    fetch(API+'?week='+encodeURIComponent(weekEnding)+'&section='+encodeURIComponent(currentSection))
-      .then(function(r){ return r.json(); })
-      .then(function(sdata){
-        if (!sdata || !sdata.metrics) { clearFields(); return; }
-
-        // Fill numeric fields
-        fieldMap[currentSection].forEach(function(f){
-          var el = document.getElementById('f-'+f);
-          if (!el) return;
-          el.value = sdata.metrics[f] != null ? sdata.metrics[f] : '';
-        });
-
-        // Fill notes
-        var notes = sdata.notes || {};
-        var actEl = document.getElementById('f-CurrentActions');
-        var reqEl = document.getElementById('f-RequirementsFromOthers');
-        if (actEl) actEl.value = notes.CurrentActions || '\u2022 ';
-        if (reqEl) reqEl.value = notes.RequirementsFromOthers || '\u2022 ';
-
-        showToast('Previous entry loaded \u2014 edit and resubmit to update', 'info');
-      }).catch(function(){ clearFields(); });
-  }).catch(function(){ clearFields(); });
-}
 
 function switchSection(el){
   currentSection=el.dataset.section;
@@ -320,12 +292,11 @@ function switchSection(el){
   el.classList.add('active');
   document.querySelectorAll('.section-panel').forEach(function(p){p.classList.remove('active');});
   var panel=document.getElementById('panel-'+currentSection);
-  if (panel) panel.classList.add('active');
+  if(panel) panel.classList.add('active');
   prefillForm();
 }
 
-// Also prefill when week date changes
-document.getElementById('weekEnding').addEventListener('change', function(){
+document.getElementById('weekEnding').addEventListener('change',function(){
   prefillForm();
 });
 
@@ -335,18 +306,99 @@ function getFieldValue(id){
   return parseFloat(el.value);
 }
 
+function parsePrevActions(text){
+  if(!text) return [];
+  return text.split('\n').map(function(l){return l.replace(/^[\u2022\-\*]\s*/,'').trim();}).filter(function(l){return l.length>0;});
+}
+
+function buildStatusTracker(prevActions){
+  var wrap=document.getElementById('statusTrackerWrap');
+  var list=document.getElementById('statusList');
+  var hidden=document.getElementById('f-ActionStatuses');
+  if(!wrap||!list||!hidden) return;
+  if(!prevActions||!prevActions.length){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  var statuses={};
+  prevActions.forEach(function(a){statuses[a]='p';});
+
+  function renderList(){
+    list.innerHTML='';
+    prevActions.forEach(function(a){
+      var s=statuses[a];
+      var item=document.createElement('div');
+      item.className='status-item';
+      var safeA=a.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      item.innerHTML=
+        '<span class="status-text">\u2022 '+safeA+'</span>'+
+        '<div class="status-btns">'+
+          '<button type="button" class="status-btn'+(s==='d'?' active-done':'')+'" data-idx="'+prevActions.indexOf(a)+'" data-status="d">\u2713 Done</button>'+
+          '<button type="button" class="status-btn'+(s==='i'?' active-progress':'')+'" data-idx="'+prevActions.indexOf(a)+'" data-status="i">\u29d6 In Progress</button>'+
+          '<button type="button" class="status-btn'+(s==='p'?' active-pending':'')+'" data-idx="'+prevActions.indexOf(a)+'" data-status="p">\u25cb Not Started</button>'+
+        '</div>';
+      list.appendChild(item);
+    });
+    list.querySelectorAll('.status-btn').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var idx=parseInt(this.dataset.idx);
+        var status=this.dataset.status;
+        statuses[prevActions[idx]]=status;
+        updateHidden();
+        renderList();
+      });
+    });
+  }
+
+  function updateHidden(){
+    var lines=Object.keys(statuses).map(function(a){return '['+statuses[a]+'] '+a;});
+    hidden.value=lines.join('\n');
+  }
+
+  renderList();
+  updateHidden();
+}
+
+function prefillForm(){
+  var weekEnding=document.getElementById('weekEnding').value;
+  if(!weekEnding) return;
+  fetch(API).then(function(r){return r.json();}).then(function(json){
+    allWeeksData=json.weeks||[];
+    var thisIdx=allWeeksData.findIndex(function(w){return w.weekEnding===weekEnding;});
+    var prevWeek=thisIdx>0?allWeeksData[thisIdx-1]:null;
+
+    fetch(API+'?week='+encodeURIComponent(weekEnding)+'&section='+encodeURIComponent(currentSection))
+      .then(function(r){return r.json();})
+      .then(function(sdata){
+        if(!sdata||!sdata.metrics){clearFields();return;}
+        fieldMap[currentSection].forEach(function(f){
+          var el=document.getElementById('f-'+f);
+          if(!el) return;
+          el.value=sdata.metrics[f]!=null?sdata.metrics[f]:'';
+        });
+        var notes=sdata.notes||{};
+        var actEl=document.getElementById('f-CurrentActions');
+        var reqEl=document.getElementById('f-RequirementsFromOthers');
+        if(actEl) actEl.value=notes.CurrentActions||'\u2022 ';
+        if(reqEl) reqEl.value=notes.RequirementsFromOthers||'\u2022 ';
+        if(notes.CurrentActions) showToast('Previous entry loaded \u2014 edit and resubmit to update','info');
+
+        var prevNotes=(prevWeek&&prevWeek.notes&&prevWeek.notes[currentSection])||{};
+        buildStatusTracker(parsePrevActions(prevNotes.CurrentActions));
+      }).catch(function(){clearFields();buildStatusTracker([]);});
+  }).catch(function(){});
+}
+
 async function submitData(){
   var weekEnding=document.getElementById('weekEnding').value;
   var name=document.getElementById('submitterName').value.trim();
-  if (!weekEnding){showToast('Please select a week ending date','error');return;}
-  if (!name){showToast('Please enter your name','error');return;}
+  if(!weekEnding){showToast('Please select a week ending date','error');return;}
+  if(!name){showToast('Please enter your name','error');return;}
   var metrics={};
   fieldMap[currentSection].forEach(function(f){var v=getFieldValue(f);if(v!==null)metrics[f]=v;});
   notesFields.forEach(function(f){
     var el=document.getElementById('f-'+f);
     if(el&&el.value.trim()&&el.value.trim()!=='\u2022') metrics[f]=el.value.trim();
   });
-  if (!Object.keys(metrics).length){showToast('Please enter at least one value','error');return;}
+  if(!Object.keys(metrics).length){showToast('Please enter at least one value','error');return;}
   var btn=document.getElementById('submitBtn');
   var btnText=document.getElementById('submitBtnText');
   var spinner=document.getElementById('submitSpinner');
@@ -354,11 +406,11 @@ async function submitData(){
   try{
     var res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({weekEnding:weekEnding,section:currentSection,submittedBy:name,metrics:metrics})});
     var data=await res.json();
-    if (!res.ok) throw new Error(data.error||'Save failed');
+    if(!res.ok) throw new Error(data.error||'Save failed');
     showToast('Saved: '+currentSection+' for '+weekEnding,'success');
     loadRecent();
-  } catch(e){showToast('ERROR: '+e.message,'error');}
-  finally{btn.disabled=false; btnText.textContent='SUBMIT KPIs'; spinner.style.display='none';}
+  }catch(e){showToast('ERROR: '+e.message,'error');}
+  finally{btn.disabled=false;btnText.textContent='SUBMIT KPIs';spinner.style.display='none';}
 }
 
 function clearFields(){
@@ -367,16 +419,17 @@ function clearFields(){
   var reqEl=document.getElementById('f-RequirementsFromOthers');
   if(actEl) actEl.value='\u2022 ';
   if(reqEl) reqEl.value='\u2022 ';
+  buildStatusTracker([]);
 }
 
 async function loadRecent(){
   var container=document.getElementById('recentEntries');
   var status=document.getElementById('recentStatus');
   try{
-    var res=await fetch(API), data=await res.json();
-    allWeeksData = data.weeks || []; // cache for prefill
+    var res=await fetch(API),data=await res.json();
+    allWeeksData=data.weeks||[];
     var weeks=allWeeksData.slice().reverse().slice(0,10);
-    if (!weeks.length){container.innerHTML='<div style="color:var(--muted);font-size:13px;padding:8px 0;font-weight:500;">No submissions yet.</div>';return;}
+    if(!weeks.length){container.innerHTML='<div style="color:var(--muted);font-size:13px;padding:8px 0;font-weight:500;">No submissions yet.</div>';return;}
     var colors={
       'Sales Team':'background:#EEF3FF;color:#0038FF',
       'Operations':'background:#E6FFF5;color:#006644',
@@ -394,7 +447,7 @@ async function loadRecent(){
     });
     container.innerHTML=html;
     status.textContent=allWeeksData.length+' WEEKS ON RECORD';
-  } catch(e){container.innerHTML='<div style="color:var(--muted);font-size:13px;">Could not load entries.</div>';}
+  }catch(e){container.innerHTML='<div style="color:var(--muted);font-size:13px;">Could not load entries.</div>';}
 }
 
 function showToast(msg,type){
@@ -404,10 +457,10 @@ function showToast(msg,type){
 }
 
 function initBullets(ta){
-  if (!ta) return;
+  if(!ta) return;
   ta.value='\u2022 ';
   ta.addEventListener('keydown',function(e){
-    if (e.key==='Enter'){
+    if(e.key==='Enter'){
       e.preventDefault();
       var pos=this.selectionStart;
       var before=this.value.substring(0,pos);
@@ -415,12 +468,12 @@ function initBullets(ta){
       this.value=before+'\n\u2022 '+after;
       this.selectionStart=this.selectionEnd=pos+3;
     }
-    if (e.key==='Backspace'){
+    if(e.key==='Backspace'){
       var pos=this.selectionStart;
       var before=this.value.substring(0,pos);
-      if (before==='\u2022 '){
+      if(before==='\u2022 '){
         e.preventDefault();
-      } else if (before.slice(-3)==='\n\u2022 '){
+      }else if(before.slice(-3)==='\n\u2022 '){
         e.preventDefault();
         this.value=this.value.substring(0,pos-3)+this.value.substring(pos);
         this.selectionStart=this.selectionEnd=pos-3;
@@ -428,7 +481,7 @@ function initBullets(ta){
     }
   });
   ta.addEventListener('focus',function(){
-    if (!this.value.trim()) this.value='\u2022 ';
+    if(!this.value.trim()) this.value='\u2022 ';
   });
 }
 
